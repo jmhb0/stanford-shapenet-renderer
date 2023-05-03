@@ -12,7 +12,7 @@ import bpy
 from glob import glob
 
 parser = argparse.ArgumentParser(description='Renders given obj file by rotation a camera around it.')
-parser.add_argument('--views', type=int, default=30,
+parser.add_argument('--views', type=int, default=36,
                     help='number of views to be rendered')
 parser.add_argument('obj', type=str,
                     help='Path to the obj file to be rendered.')
@@ -34,6 +34,8 @@ parser.add_argument('--resolution', type=int, default=600,
                     help='Resolution of the images.')
 parser.add_argument('--engine', type=str, default='BLENDER_EEVEE',
                     help='Blender internal engine for rendering. E.g. CYCLES, BLENDER_EEVEE, ...')
+parser.add_argument('--light_energy', type=float, default=4,
+                    help='strength of the lighting. Previous default is 10.')
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 args = parser.parse_args(argv)
@@ -53,9 +55,9 @@ render.resolution_percentage = 100
 render.film_transparent = True
 
 scene.use_nodes = True
-scene.view_layers["View Layer"].use_pass_normal = True
-scene.view_layers["View Layer"].use_pass_diffuse_color = True
-scene.view_layers["View Layer"].use_pass_object_index = True
+scene.view_layers["ViewLayer"].use_pass_normal = True
+scene.view_layers["ViewLayer"].use_pass_diffuse_color = True
+scene.view_layers["ViewLayer"].use_pass_object_index = True
 
 nodes = bpy.context.scene.node_tree.nodes
 links = bpy.context.scene.node_tree.links
@@ -183,20 +185,20 @@ light.type = 'SUN'
 light.use_shadow = False
 # Possibly disable specular shading:
 light.specular_factor = 1.0
-light.energy = 10.0
+light.energy = args.light_energy
 
 # Add another light source so stuff facing away from light is not completely dark
 bpy.ops.object.light_add(type='SUN')
 light2 = bpy.data.lights['Sun']
 light2.use_shadow = False
 light2.specular_factor = 1.0
-light2.energy = 0.015
+light2.energy = args.light_energy # CHANGED from 0.015
 bpy.data.objects['Sun'].rotation_euler = bpy.data.objects['Light'].rotation_euler
 bpy.data.objects['Sun'].rotation_euler[0] += 180
 
 # Place camera
 cam = scene.objects['Camera']
-cam.location = (0, 1, 0.6)
+cam.location = (0, 1, 0.3) # original is (0, 1, 0.6) 
 cam.data.lens = 35
 cam.data.sensor_width = 32
 
