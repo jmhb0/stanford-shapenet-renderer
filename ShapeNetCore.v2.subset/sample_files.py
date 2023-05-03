@@ -46,11 +46,12 @@ for uid in uids_sample:
     # do the rendering
     fname_3d_model = os.path.join(destination_file, uid,'models', 'model_normalized.obj')
     output_folder = os.path.join(destination_file, uid, "renders")
-    command = f"{blender_path} --background --python render_blender.py -- --output_folder {output_folder} {fname_3d_model} --scale=0.8 --resolution=512"
-    print(command)
-    command = command.split(" ")
-    print(command)
-    result = subprocess.run(command,)
+    if not os.path.exists(output_folder):
+        command = f"{blender_path} --background --python render_blender.py -- --output_folder {output_folder} {fname_3d_model} --scale=0.8 --resolution=512"
+        print(command)
+        command = command.split(" ")
+        print(command)
+        result = subprocess.run(command,)
 
 
 ipdb.set_trace()
