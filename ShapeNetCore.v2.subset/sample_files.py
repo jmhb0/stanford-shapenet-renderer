@@ -29,8 +29,15 @@ uids = pd.read_csv(os.path.join(this_dir, "all.csv"))
 uids = uids[uids['synsetId']==int(code)] 
 print(f"Found {len(uids)} objects with class {args.shapenet_class}")
 
+# exclude some of them 
+uids_exclude = open(os.path.join(this_dir, "exclude_uids.txt")).read()
+uids_exclude = uids_exclude.split("\n")
+uids_exclude = [u.strip() for u in uids_exclude]
+uids = uids[~uids['modelId'].isin(uids_exclude)]
+
 # do the sampling 
 uids_sample = uids.sample(n=args.num, random_state=args.seed)['modelId']
+
 
 # copy the model ids for the samples
 dir_class = os.path.join(this_dir, "samples", f"samples_{args.shapenet_class}")
